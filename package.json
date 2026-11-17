@@ -6,7 +6,8 @@
   "scripts": {
     "start": "tsx src/main.ts",
     "dev": "tsx watch src/main.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "tsx --test tests/*.test.ts"
   },
   "keywords": [],
   "author": "",
