@@ -4,14 +4,13 @@
   "description": "Sistema de bilheteria desenvolvido em TypeScript, aplicando programação orientada a objetos, programação funcional e concorrência para gerenciar vendas simultâneas de ingressos, controlar a lotação e garantir pagamentos seguros com timeout e retentativas.",
   "main": "index.js",
   "scripts": {
+    "test": "tsx testes/executar.ts testes/projeto.ts src --legivel",
     "start": "tsx src/main.ts",
-    "dev": "tsx watch src/main.ts",
-    "build": "tsc",
-    "test": "tsx --test tests/*.test.ts"
+    "bench": "tsx src/bench.ts",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "type": "module",
   "dependencies": {
     "express": "^5.3.0"
   },
