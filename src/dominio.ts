@@ -1,68 +1,102 @@
-import type { Ingresso } from "./tipos";
+export abstract class ErroDeNegocio extends Error {
+    constructor(
+        mensagem: string,
+        public readonly status: number
+    ) {
+        super(mensagem);
+        this.name = new.target.name;
+    }
+}
+
+export class DadosInvalidosErro extends ErroDeNegocio {
+    constructor(mensagem: string) {
+        super(mensagem, 400);
+    }
+}
+
+export class NaoEncontradoErro extends ErroDeNegocio {
+    constructor(mensagem: string) {
+        super(mensagem, 404);
+    }
+}
+
+export class PoltronaOcupadaErro extends ErroDeNegocio {
+    constructor(mensagem: string) {
+        super(mensagem, 409);
+    }
+}
+
+export class PagamentoErro extends ErroDeNegocio {
+    constructor(mensagem: string) {
+        super(mensagem, 502);
+    }
+}
 
 export class Evento {
-    private ingressos: Map<string, Ingresso>;
-    private reservados: Set<string>;
-    private vendidos: Set<string>;
+    #vendidas: number[] = [];
 
     constructor(
+        public readonly id: number,
         public readonly nome: string,
-        ingressos: Ingresso[]
-    ) {
-        this.ingressos = new Map();
-        this.reservados = new Set();
-        this.vendidos = new Set();
+        public readonly preco: number,
+        public readonly capacidade: number,
+    ) {}
 
-        for (const ingresso of ingressos) {
-            if (this.ingressos.has(ingresso.id)) {
-                throw new Error("Ingresso duplicado.");
-            }
-
-            this.ingressos.set(ingresso.id, { ...ingresso });
-        }
+    get disponivel(): number {
+        return this.capacidade - this.#vendidas.length;
     }
-
-    listarDisponiveis(): Ingresso[] {
-        return Array.from(this.ingressos.values())
-            .filter(ingresso =>
-                !this.reservados.has(ingresso.id) &&
-                !this.vendidos.has(ingresso.id)
-            )
-            .map(ingresso => ({ ...ingresso }));
-    }
-
-    reservar(id: string): boolean {
-        if (!this.ingressos.has(id)) {
-            return false;
+    
+    reservar(poltronas: number[]): void {
+        if (poltronas.length === 0) {
+            throw new DadosInvalidosErro("Nenhuma poltrona selecionada.");
         }
 
-        if (
-            this.reservados.has(id) ||
-            this.vendidos.has(id)
-        ) {
-            return false;
+        const duplicadas = new Set(poltronas).size !== poltronas.length;
+        if (duplicadas) {
+            throw new DadosInvalidosErro("Poltronas duplicadas na reserva.");
         }
 
-        this.reservados.add(id);
-        return true;
-    }
-
-    liberarReserva(id: string): boolean {
-        return this.reservados.delete(id);
-    }
-
-    confirmarVenda(id: string): boolean {
-        if (!this.reservados.has(id)) {
-            return false;
+        const invalidas = poltronas.some(
+            poltrona =>
+            !Number.isInteger(poltrona) ||
+            poltrona < 1 ||
+            poltrona > this.capacidade
+        );
+        if (invalidas) {
+            throw new DadosInvalidosErro("Poltronas além da capacidade no evento.");
         }
 
-        this.reservados.delete(id);
-        this.vendidos.add(id);
+        const ocupadas = poltronas.some(
+            poltrona => this.#vendidas.includes(poltrona)
+        );
+        if (ocupadas) {
+            throw new PoltronaOcupadaErro("Uma ou mais poltronas já estão ocupadas.");
+        }
 
-        return true;
+        this.#vendidas = [...this.#vendidas, ...poltronas];
     }
 
-    get quantidadeDisponivel(): number {
-        return this.listarDisponiveis().length;
+    liberar(poltronas: number[]): void {
+        const naoVendidas = poltronas.some(
+            poltrona => !this.#vendidas.includes(poltrona)
+        );
+
+        if (naoVendidas) {
+            throw new DadosInvalidosErro("A poltrona informada não está reservada.");
+        }
+
+        this.#vendidas = this.#vendidas.filter(
+            poltrona => !poltronas.includes(poltrona)
+        );
+    }
+
+    info() {
+        return {
+            id: this.id,
+            nome: this.nome,
+            preco: this.preco,
+            capacidade: this.capacidade,
+            disponivel: this.disponivel
+        };
     }
 }

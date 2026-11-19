@@ -1,6 +1,5 @@
 import type { Ingresso, Pessoa } from "./tipos.ts";
 
-
 export function valorDoIngresso(precoBase: number) {
     return (tipo: Ingresso["tipo"]): number => {
         if (tipo === "meia") {
