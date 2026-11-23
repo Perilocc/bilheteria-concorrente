@@ -21,7 +21,7 @@ export function montarIngressos(
     pessoas: Pessoa[],
     temDireitoAMeia: (pessoa: Pessoa) => boolean
 ): Ingresso[] {
-    return pessoas.map(pessoa => {
+    return pessoas.map((pessoa) => {
         const tipo = temDireitoAMeia(pessoa) ? "meia" : "inteira";
 
         return {
@@ -34,10 +34,7 @@ export function montarIngressos(
 }
 
 export function calcularTotal(ingressos: Ingresso[]): number {
-    const subtotal = ingressos.reduce(
-        (acumulador, ingresso) => acumulador + ingresso.valor,
-        0
-    );
+    const subtotal = ingressos.reduce((acumulador, ingresso) => acumulador + ingresso.valor, 0);
 
     return aplicarTaxa(0.1)(subtotal);
 }

@@ -39,13 +39,13 @@ export class Evento {
         public readonly id: number,
         public readonly nome: string,
         public readonly preco: number,
-        public readonly capacidade: number,
+        public readonly capacidade: number
     ) {}
 
     get disponivel(): number {
         return this.capacidade - this.#vendidas.length;
     }
-    
+
     reservar(poltronas: number[]): void {
         if (poltronas.length === 0) {
             throw new DadosInvalidosErro("Nenhuma poltrona selecionada.");
@@ -57,18 +57,13 @@ export class Evento {
         }
 
         const invalidas = poltronas.some(
-            poltrona =>
-            !Number.isInteger(poltrona) ||
-            poltrona < 1 ||
-            poltrona > this.capacidade
+            (poltrona) => !Number.isInteger(poltrona) || poltrona < 1 || poltrona > this.capacidade
         );
         if (invalidas) {
             throw new DadosInvalidosErro("Poltronas além da capacidade no evento.");
         }
 
-        const ocupadas = poltronas.some(
-            poltrona => this.#vendidas.includes(poltrona)
-        );
+        const ocupadas = poltronas.some((poltrona) => this.#vendidas.includes(poltrona));
         if (ocupadas) {
             throw new PoltronaOcupadaErro("Uma ou mais poltronas já estão ocupadas.");
         }
@@ -77,17 +72,13 @@ export class Evento {
     }
 
     liberar(poltronas: number[]): void {
-        const naoVendidas = poltronas.some(
-            poltrona => !this.#vendidas.includes(poltrona)
-        );
+        const naoVendidas = poltronas.some((poltrona) => !this.#vendidas.includes(poltrona));
 
         if (naoVendidas) {
             throw new DadosInvalidosErro("A poltrona informada não está reservada.");
         }
 
-        this.#vendidas = this.#vendidas.filter(
-            poltrona => !poltronas.includes(poltrona)
-        );
+        this.#vendidas = this.#vendidas.filter((poltrona) => !poltronas.includes(poltrona));
     }
 
     info() {
