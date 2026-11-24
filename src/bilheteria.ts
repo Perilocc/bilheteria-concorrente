@@ -1,7 +1,18 @@
 import type { Comprovante, ConfigBilheteria, EventoInfo, Pedido } from "./tipos.ts";
-import { DadosInvalidosErro, NaoEncontradoErro } from "./dominio.ts";
+import { DadosInvalidosErro, NaoEncontradoErro, PagamentoErro } from "./dominio.ts";
 import { calcularTotal, montarIngressos } from "./preco.ts";
 import { direitoAMeia } from "./regras.ts";
+
+async function TempoLimite<T>(promessa: Promise<T>, ms: number): Promise<T> {
+    let temporizador: ReturnType<typeof setTimeout>;
+    const timeout = new Promise<never>((_, rejeitar) => {
+        temporizador = setTimeout(() => {
+            rejeitar(new PagamentoErro("Tempo limite de pagamento excedido."));
+        }, ms);
+    });
+    
+    return Promise.race([promessa, timeout]).finally(() => clearTimeout(temporizador));
+}
 
 export class Bilheteria {
     #eventos: ConfigBilheteria["eventos"];
@@ -38,7 +49,16 @@ export class Bilheteria {
 
         const total = calcularTotal(ingressos);
 
-        await this.#pagar(total);
+        try{
+            await TempoLimite(this.#pagar(total), this.#limitePagamentoMs);
+            
+        } catch (erro) {
+            evento.liberar(poltronas);
+
+            const mensagem = erro instanceof Error ? erro.message : "Pagamento recusado";
+            throw new PagamentoErro(mensagem);
+        }
+    
 
         return {
             reservaId: this.#proximoReservaId++,
