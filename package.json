@@ -1,0 +1,26 @@
+{
+  "name": "bilheteria-concorrente",
+  "version": "1.0.0",
+  "description": "Sistema de bilheteria desenvolvido em TypeScript, aplicando programação orientada a objetos, programação funcional e concorrência para gerenciar vendas simultâneas de ingressos, controlar a lotação e garantir pagamentos seguros com timeout e retentativas.",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsx testes/executar.ts testes/projeto.ts src --legivel",
+    "start": "tsx src/main.ts",
+    "bench": "tsx src/bench.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
+  }
+}
