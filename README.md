@@ -34,7 +34,7 @@ curl -X POST localhost:3000/reservas -H 'Content-Type: application/json' \
 
 ---
 
-**Link do vídeo:**
+**Link do vídeo:** https://youtu.be/sa-8g-9mfLw?si=G8coqUrRfUnoJHBn
 
 ### Integrantes
 
